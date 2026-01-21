@@ -1,0 +1,70 @@
+"""Application configuration using pydantic-settings."""
+
+from functools import lru_cache
+
+from pydantic import field_validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class Settings(BaseSettings):
+    """
+    Application settings loaded from environment variables.
+
+    All settings can be overridden via environment variables or .env file.
+    """
+
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+
+    # Application
+    app_name: str = "{{project_name}}"
+    debug: bool = False
+    api_prefix: str = "/api/v1"
+
+    {{#if database}}
+    # Database
+    database_url: str
+    database_pool_size: int = 5
+    database_max_overflow: int = 10
+    {{/if}}
+
+    {{#if auth_jwt}}
+    # Authentication (JWT)
+    secret_key: str
+    algorithm: str = "HS256"
+    access_token_expire_minutes: int = 30
+    refresh_token_expire_days: int = 7
+    {{/if}}
+
+    {{#if auth_apikey}}
+    # Authentication (API Key)
+    api_key: str
+    {{/if}}
+
+    # CORS
+    allowed_origins: list[str] = ["http://localhost:3000"]
+
+    {{#if redis}}
+    # Redis
+    redis_url: str = "redis://localhost:6379/0"
+    {{/if}}
+
+    @field_validator("allowed_origins", mode="before")
+    @classmethod
+    def parse_origins(cls, v: str | list[str]) -> list[str]:
+        """Parse comma-separated origins string into list."""
+        if isinstance(v, str):
+            return [origin.strip() for origin in v.split(",")]
+        return v
+
+
+@lru_cache
+def get_settings() -> Settings:
+    """Get cached settings instance."""
+    return Settings()
+
+
+settings = get_settings()
