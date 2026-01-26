@@ -1,4 +1,4 @@
-# Claude Code Skills Labs
+# Agent Skills Lab
 
 Version-controlled skill labs and reasoning workflows for Claude Code — treating AI behavior as auditable, reviewable code.
 
