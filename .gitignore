@@ -76,3 +76,11 @@ build/
 *.bak
 *.tmp
 *.old
+
+############################
+# AI / IDE Tool Dirs
+############################
+.agents/
+.codex/
+.cursor/
+.gemini/
